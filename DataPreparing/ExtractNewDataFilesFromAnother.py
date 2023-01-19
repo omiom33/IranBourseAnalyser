@@ -7,16 +7,14 @@ def createXLSforNamadFromPkl(OutputDir="namads", InputFile="AllData.pkl"):
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
 
-    f = open(InputFile, "rb")
-    allData = pickle.load(f)
-    f.close()
-
-    print('start writing results for ' + str(allData.__len__()) + ' namad')
+    with open(InputFile, "rb") as f:
+        allData = pickle.load(f)
+    print(f'start writing results for {str(allData.__len__())} namad')
 
     pr = 0
     for namad in allData:
 
-        if os.path.exists(OutputDir + '/' + namad + '.xls'):
+        if os.path.exists(f'{OutputDir}/{namad}.xls'):
             continue
 
         book = xlwt.Workbook()
@@ -31,8 +29,7 @@ def createXLSforNamadFromPkl(OutputDir="namads", InputFile="AllData.pkl"):
             namadPage.write(0, c + 2, sotoon)
 
             vals = allData[namad][sotoon]
-            r = 1
-            for v in vals:
+            for r, v in enumerate(vals, start=1):
                 namadPage.write(r, c, v['pInWeek'])
                 namadPage.write(r, c + 1, v['pd'].isoformat())
                 # namadPage.write(r, c + 1, v['pd'])
@@ -41,24 +38,20 @@ def createXLSforNamadFromPkl(OutputDir="namads", InputFile="AllData.pkl"):
                 except:
                     namadPage.write(r, c + 2, '-')
 
-                r += 1
-
             c += 3
 
         pr += 1
-        print(str(int(pr / allData.__len__() * 100)) + '% ... namad: ' + namad + ' saved!')
+        print(f'{int(pr / allData.__len__() * 100)}% ... namad: {namad} saved!')
         # if pr >10 :
         #     break
 
-        book.save(OutputDir + '/' + namad + '.xls')
+        book.save(f'{OutputDir}/{namad}.xls')
 
 
 def groupNamadDataIntermOfDayOfWeekFromPKL(InputFile="AllData.pkl", OutputDir='namadsOnDayOfWeek'):
-    f = open(InputFile, "rb")
-    allData = pickle.load(f)
-    f.close()
-
-    print('start writing results for ' + str(allData.__len__()) + ' namad')
+    with open(InputFile, "rb") as f:
+        allData = pickle.load(f)
+    print(f'start writing results for {str(allData.__len__())} namad')
 
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
@@ -66,7 +59,7 @@ def groupNamadDataIntermOfDayOfWeekFromPKL(InputFile="AllData.pkl", OutputDir='n
     pr = 0
     for namad in allData:
 
-        if os.path.exists(OutputDir + '/' + namad + '.xls'):
+        if os.path.exists(f'{OutputDir}/{namad}.xls'):
             continue
 
         book = xlwt.Workbook()
@@ -117,9 +110,9 @@ def groupNamadDataIntermOfDayOfWeekFromPKL(InputFile="AllData.pkl", OutputDir='n
 
         pr += 1
 
-        print(str(int(pr / allData.__len__() * 100)) + '% ... namad: ' + namad + ' saved!')
+        print(f'{int(pr / allData.__len__() * 100)}% ... namad: {namad} saved!')
 
-        book.save(OutputDir + '/' + namad + '.xls')
+        book.save(f'{OutputDir}/{namad}.xls')
         # for n in nparrays:
         #     directory = outDir+'/'+namad+'_asndarray/'
         #     if not os.path.exists(directory):

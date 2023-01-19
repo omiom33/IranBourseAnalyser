@@ -13,16 +13,14 @@ def computePercentOfChangeDistributionForAllNamadsAsWhole(OutputDir="Distiributi
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
 
-    f = open(InputFile, "rb")
-    allData = pickle.load(f)
-    f.close()
-
-    print('start writing results for ' + str(allData.__len__()) + ' day')
+    with open(InputFile, "rb") as f:
+        allData = pickle.load(f)
+    print(f'start writing results for {str(allData.__len__())} day')
 
     GroupByMonth = {}
     for day in allData:
         DayData = allData[day]
-        key = f'{day.year:02}' + '-' + f'{day.month:02}'
+        key = f'{day.year:02}-' + f'{day.month:02}'
         if key not in GroupByMonth:
             GroupByMonth[key] = []
 
@@ -64,20 +62,17 @@ def computePercentOfChangeDistributionForAllNamadsAsWhole(OutputDir="Distiributi
         HistOfMonth[m] = {'hist': hist, 'bin': bin_edges, 'avg': np.average(a), 'median': np.median(a),
                           'mode': stats.mode(a)}
 
-    f = open(OutputDir + '/PercentOfChangeDistributionForAllNamadsAsWhole.pkl', "wb")
-    pickle.dump(allData, f)
-    f.close()
+    with open(f'{OutputDir}/PercentOfChangeDistributionForAllNamadsAsWhole.pkl', "wb") as f:
+        pickle.dump(allData, f)
 
 
 def computePercentOfChangeDistributionForAllNamads(OutputDir="Distiribution", InputFile="AllNamadsByNamads.pkl"):
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
 
-    f = open(InputFile, "rb")
-    allData = pickle.load(f)
-    f.close()
-
-    print('start writing results for ' + str(allData.__len__()) + ' Namad')
+    with open(InputFile, "rb") as f:
+        allData = pickle.load(f)
+    print(f'start writing results for {str(allData.__len__())} Namad')
 
     pr = 0
     GroupByNamad = {}
@@ -91,7 +86,7 @@ def computePercentOfChangeDistributionForAllNamads(OutputDir="Distiribution", In
         for val in NamadData:
             DayData = NamadData[val]
             day = DayData['تاريخ']
-            key = f'{day.year:02}' + '-' + f'{day.month:02}'
+            key = f'{day.year:02}-' + f'{day.month:02}'
             if key not in GroupByMonth:
                 GroupByMonth[key] = []
 
@@ -138,6 +133,5 @@ def computePercentOfChangeDistributionForAllNamads(OutputDir="Distiribution", In
 
         GroupByNamad[Namad] = HistOfMonth
 
-    f = open(OutputDir + '/PercentOfChangeDistributionForAllNamads.pkl', "wb")
-    pickle.dump(allData, f)
-    f.close()
+    with open(f'{OutputDir}/PercentOfChangeDistributionForAllNamads.pkl', "wb") as f:
+        pickle.dump(allData, f)

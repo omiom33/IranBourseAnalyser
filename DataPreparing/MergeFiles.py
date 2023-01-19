@@ -18,7 +18,7 @@ def mergeIranbourseAllDayExcelsByNamads(InputDir="DailyExcelsFromIranBourse", Ou
         print('start readin files')
         fi = 0.0
         for filename in files:
-            print(str(int(fi / files.__len__() * 100.0)) + ' %  ... ' + filename)
+            print(f'{int(fi / files.__len__() * 100.0)} %  ... ' + filename)
             fi += 1.0
             try:
                 df_list = pandas.read_html(InputDir + '/' + filename)
@@ -65,17 +65,16 @@ def mergeIranbourseAllDayExcelsByNamads(InputDir="DailyExcelsFromIranBourse", Ou
                         {'v': meqdar, 'pd': pd, 'eInWeek': dayInWeek, 'pInWeek': pdayInWeek})
                     i += 1
 
-            # print(pd)
+                    # print(pd)
 
-    for namad in allData:
-        for sotoon in allData[namad]:
+    for namad, value in allData.items():
+        for sotoon in value:
             if sotoon == 'نام':
                 continue
             allData[namad][sotoon].sort(key=lambda k: k['pd'])
 
-    f = open(OutputFile, "wb")
-    pickle.dump(allData, f)
-    f.close()
+    with open(OutputFile, "wb") as f:
+        pickle.dump(allData, f)
 
 
 # To merge daily xls files to python dictionary. Output is sorted interm of persian date
@@ -91,7 +90,7 @@ def mergeIranbourseAllDayExcelsByDays(InputDir="DailyExcelsFromIranBourse", Outp
         print('start readin files')
         fi = 0.0
         for filename in files:
-            print(str(int(fi / files.__len__() * 100.0)) + ' %  ... ' + filename)
+            print(f'{int(fi / files.__len__() * 100.0)} %  ... ' + filename)
             fi += 1.0
             try:
                 df_list = pandas.read_html(InputDir + '/' + filename)
@@ -119,19 +118,14 @@ def mergeIranbourseAllDayExcelsByDays(InputDir="DailyExcelsFromIranBourse", Outp
 
             thisday = {}
             for col in df.columns.values:
-                # thisday[col] = df[col].values
-                idx = 0
-                for v in df[col].values:
+                for idx, v in enumerate(df[col].values):
                     if idx not in thisday:
                         thisday[idx] = {}
                     thisday[idx][col] = v
-                    idx += 1
-
             allData[pd] = thisday
 
-    f = open(OutputFile, "wb")
-    pickle.dump(allData, f)
-    f.close()
+    with open(OutputFile, "wb") as f:
+        pickle.dump(allData, f)
 
 
 # To merge daily xls files to python dictionary. Output is sorted interm of persian date
@@ -145,7 +139,7 @@ def mergeIranbourseAllNamadExcelsByNamadd(InputDir="NamadsExcelsFromIranBourse",
         print('start readin files')
         fi = 0.0
         for filename in files:
-            print(str(int(fi / files.__len__() * 100.0)) + ' %  ... ' + filename)
+            print(f'{int(fi / files.__len__() * 100.0)} %  ... ' + filename)
             fi += 1.0
             try:
                 df_list = pandas.read_html(InputDir + '/' + filename)
@@ -171,23 +165,16 @@ def mergeIranbourseAllNamadExcelsByNamadd(InputDir="NamadsExcelsFromIranBourse",
 
             thisNamad = {}
             for col in df.columns.values:
-                idx = 0
-                for v in df[col].values:
+                for idx, v in enumerate(df[col].values):
                     if idx not in thisNamad:
                         thisNamad[idx] = {}
-                    if col == str('تاريخ'):
+                    if col == 'تاريخ':
                         date = v.split('/')
                         pd = jdatetime.date(int(date[0]), int(date[1]), int(date[2]))
                         thisNamad[idx][col] = pd
                     else:
-                        if type(v) == numpy.int64:
-                            thisNamad[idx][col] = int(v)
-                        else:
-                            thisNamad[idx][col] = v
-                    idx += 1
-
+                        thisNamad[idx][col] = int(v) if type(v) == numpy.int64 else v
             allData[NamadId] = thisNamad
 
-    f = open(OutputFile, "wb")
-    pickle.dump(allData, f)
-    f.close()
+    with open(OutputFile, "wb") as f:
+        pickle.dump(allData, f)

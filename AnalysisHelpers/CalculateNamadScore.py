@@ -37,7 +37,7 @@ def findBestDelayBetweenBuyAndSell(Dates, ClosePrice, LastPrice, minDays, maxDay
 
     # Profits = []
     ProfitsOnLengths = {}
-    for buy in range(0, len(ClosePrice) - maxDays):
+    for buy in range(len(ClosePrice) - maxDays):
         if math.isnan(ClosePrice[buy]):
             continue
         buydate = Dates[buy]
@@ -72,41 +72,20 @@ def findBestDelayBetweenBuyAndSell(Dates, ClosePrice, LastPrice, minDays, maxDay
         ProfitsOnLengthsPercentMeans.append({'DelayDays': dl, 'Mean': m, 'MeanPrice': mpri})
     ProfitsOnLengthsPercentMeans.sort(key=lambda k: k['Mean'], reverse=True)
 
-    # # following values are good but not useful now. we use previouse ones
-    # ProfitsOnLengthsGroupByPercent = {} # conditional probability of P(Profit=n|delay=m)
-    # ProfitExpectedValueInPercent = [] # conditional expectation E[Profit=n|delay=m]
-    # for v in ProfitsOnLengths :
-    #     ProfitsOnLengthsGroupByPercent[v] = []
-    #     plen = len(ProfitsOnLengths[v])
-    #     for k, g in itertools.groupby(ProfitsOnLengths[v], lambda x: x['ProfitPercent']):
-    #         lg = list(g)
-    #         # ProfitsOnLengthsGroupByPercent[v].append({'list':lg, 'percent':k, 'prob':len(lg)/plen})
-    #         ProfitsOnLengthsGroupByPercent[v].append({'percent':k, 'prob':len(lg)/plen})
-    #     ProfitsOnLengthsGroupByPercent[v].sort(key=lambda k: k['prob'], reverse=True)
-    #     ev = 0
-    #     for pp in ProfitsOnLengthsGroupByPercent[v]:
-    #         ev += pp['percent']*pp['prob']
-    #     ProfitExpectedValueInPercent.append({'delay':v, 'ev':ev})
-    # ProfitExpectedValueInPercent.sort(key=lambda k: k['ev'], reverse=True)
-
-    if len(ProfitsOnLengthsPercentMeans) > 0:
-        BestExpectedDelay = ProfitsOnLengthsPercentMeans[0]['DelayDays']
-        ExpectedProfitPrice = float(ProfitsOnLengthsPercentMeans[0]['MeanPrice'])
-        ExpectedProfitPercent = float(ProfitsOnLengthsPercentMeans[0]['Mean'])
-
-        return BestExpectedDelay, ExpectedProfitPrice, ExpectedProfitPercent
-    else:
+    if not ProfitsOnLengthsPercentMeans:
         return -1, -1, -1
+    BestExpectedDelay = ProfitsOnLengthsPercentMeans[0]['DelayDays']
+    ExpectedProfitPrice = float(ProfitsOnLengthsPercentMeans[0]['MeanPrice'])
+    ExpectedProfitPercent = float(ProfitsOnLengthsPercentMeans[0]['Mean'])
+
+    return BestExpectedDelay, ExpectedProfitPrice, ExpectedProfitPercent
 
 
 def calculateScores(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, OutputDir=""):
-    # load data
-    f = open(InputFile, "rb")
-    Data = pickle.load(f)
-    f.close()
-
+    with open(InputFile, "rb") as f:
+        Data = pickle.load(f)
     adsize = Data.__len__()
-    print('start writing scores for ' + str(adsize) + ' namad')
+    print(f'start writing scores for {str(adsize)} namad')
 
     AnalysisDataResult = {}
     nidx = 0
@@ -131,13 +110,10 @@ def calculateScores(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, OutputDir
 
         # atleast MinDataLen data needed
         if len(ClosePrice) < MinDataLen:
-            print('Small data : ' + str(len(ClosePrice)) + ' > ' + Namad)
+            print(f'Small data : {len(ClosePrice)} > {Namad}')
             continue
 
-        CurrentAnalysis = {}
-        # extract scores :
-        CurrentAnalysis['tedad_roozhayee_ke_namad_tu_300ta_bude'] = len(NamadData)
-
+        CurrentAnalysis = {'tedad_roozhayee_ke_namad_tu_300ta_bude': len(NamadData)}
         z = numpy.polyfit(range(len(ValueOfBazzar)), ValueOfBazzar, 1)
         CurrentAnalysis['ValueOfBazzarTrendLine'] = z
         # drawDataWithTrendLine(ValueOfBazzar, z, Namad + '-' + 'ارزش بازار کل سهام های نماد')
@@ -175,9 +151,11 @@ def calculateScores(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, OutputDir
         #                                  [round(p, 2) for p in PercentOfClosePrice[BestExpectedDelay:]])
         # nppmi = metrics.normalized_mutual_info_score([round(p, 2) for p in PercentOfClosePrice[0:-BestExpectedDelay]],
         #                                              [round(p, 2) for p in PercentOfClosePrice[BestExpectedDelay:]])
-        ppmi, nppmi = MutualInformation.computMutualInformation4Continuous(PercentOfClosePrice[0:-BestExpectedDelay],
-                                                                           PercentOfClosePrice[BestExpectedDelay:],
-                                                                           per=1)
+        ppmi, nppmi = MutualInformation.computMutualInformation4Continuous(
+            PercentOfClosePrice[:-BestExpectedDelay],
+            PercentOfClosePrice[BestExpectedDelay:],
+            per=1,
+        )
         CurrentAnalysis['mutual_info_price_percent_and_price_percent_with_best_expected_delay'] = nppmi
 
         entp, normentp = MutualInformation.computeEntropy4Discrete(ClosePrice)
@@ -191,11 +169,10 @@ def calculateScores(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, OutputDir
         AnalysisDataResult[Namad] = CurrentAnalysis
 
         nidx += 1
-        print(str(int(nidx / adsize * 100)) + '% done > ' + Namad)
+        print(f'{int(nidx / adsize * 100)}% done > {Namad}')
 
     # save results
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
-    f = open(OutputDir + "/NamadScores.pkl", "wb")
-    pickle.dump(AnalysisDataResult, f)
-    f.close()
+    with open(f"{OutputDir}/NamadScores.pkl", "wb") as f:
+        pickle.dump(AnalysisDataResult, f)
