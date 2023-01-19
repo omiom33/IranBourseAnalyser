@@ -18,7 +18,7 @@ log = open('log.txt', 'w')
 f = open("AllData.pkl", "rb")
 allData = pickle.load(f)
 
-print('start writing results for ' + str(allData.__len__()) + ' namad')
+print(f'start writing results for {str(allData.__len__())} namad')
 
 for namad in allData:
     print(namad)
@@ -40,7 +40,7 @@ for namad in allData:
 
     size = bishtarin.__len__()
 
-    for pnt1 in range(0, size):
+    for pnt1 in range(size):
         for pnt2 in range(pnt1, size):
 
             bish1 = bishtarin[pnt1]
@@ -52,16 +52,20 @@ for namad in allData:
             dtemp = jdatetime.date.today().togregorian()
 
             # within next n week : from 7 to 14 day later
-            if datBish1.togregorian() + datetime.timedelta(7) < datBish2.togregorian():
-                if datBish1.togregorian() + datetime.timedelta(14) > datBish2.togregorian():
-                    vBish1 = bish1['v']
-                    vBish2 = bish2['v']
-                    if vBish2 > vBish1:
-                        growth = vBish2 - vBish1
-                        perc = (growth / vBish1) * 100
-                        if perc > 1:
-                            print('prophit detected !')
-                            print('Buy on: ' + datBish1.isoformat())
-                            print('Sell on: ' + datBish2.isoformat())
-                            print(str(int(perc * 100) / 100) + ' %')
-                            print(growth)
+            if (
+                datBish1.togregorian() + datetime.timedelta(7)
+                < datBish2.togregorian()
+                and datBish1.togregorian() + datetime.timedelta(14)
+                > datBish2.togregorian()
+            ):
+                vBish1 = bish1['v']
+                vBish2 = bish2['v']
+                if vBish2 > vBish1:
+                    growth = vBish2 - vBish1
+                    perc = (growth / vBish1) * 100
+                    if perc > 1:
+                        print('prophit detected !')
+                        print(f'Buy on: {datBish1.isoformat()}')
+                        print(f'Sell on: {datBish2.isoformat()}')
+                        print(f'{str(int(perc * 100) / 100)} %')
+                        print(growth)

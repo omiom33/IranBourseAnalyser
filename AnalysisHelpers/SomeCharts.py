@@ -19,14 +19,11 @@ def drawScaters(OutputDir="Charts", InputFile="AllNamadsByNamads.pkl"):
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
 
-    f = open(InputFile, "rb")
-    allData = pickle.load(f)
-    f.close()
+    with open(InputFile, "rb") as f:
+        allData = pickle.load(f)
+    print(f'start writing results for {str(allData.__len__())} Namad')
 
-    print('start writing results for ' + str(allData.__len__()) + ' Namad')
-
-    pr = 0
-    for Namad in allData:
+    for pr, Namad in enumerate(allData, start=1):
         NamadData = allData[Namad]
 
         # Value = DayData['ارزش']
@@ -116,8 +113,6 @@ def drawScaters(OutputDir="Charts", InputFile="AllNamadsByNamads.pkl"):
         text = bidialg.get_display(reshaped_text)
         plt.suptitle(text)
         plt.savefig(OutputDir + '/' + '_' + Namad + '_' + '.png')
-        # plt.show()
-        pr += 1
         print(Namad + ' > ' + str(int(pr / len(allData) * 100)) + ' % done!')
 
 
@@ -134,7 +129,7 @@ def drawCorrelations(InputDir='NamadsExcelsFromIranBourse', OutputDir="Charts/In
         print('start readin files')
         fi = 0
         for filename in files:
-            print(str(int(fi / files.__len__() * 100.0)) + ' %  ... ' + filename)
+            print(f'{int(fi / files.__len__() * 100.0)} %  ... ' + filename)
             fi += 1.0
             df_list = pandas.read_html(InputDir + '/' + filename)
 

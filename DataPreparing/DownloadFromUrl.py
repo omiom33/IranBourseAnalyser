@@ -27,12 +27,12 @@ def downloadAllDayExcelsFromIranbourse(OutDir='DailyExcelsFromIranBourse'):
     while nodata < numberOfDayIgnore and redata < numberOfFileIgnore:
         ed = ed - datetime.timedelta(1)
         pd = jdatetime.date.fromgregorian(date=ed)
-        name = 'TradeOneDay_' + str(pd.year) + '_' + str(pd.month) + '_' + str(pd.day) + '.xls'
+        name = f'TradeOneDay_{str(pd.year)}_{str(pd.month)}_{str(pd.day)}.xls'
 
         # check if the file existed or not
-        if os.path.exists(OutDir + '/' + name):
+        if os.path.exists(f'{OutDir}/{name}'):
             redata += 1
-            print('file :' + name + ' already exists !. repeated data = ' + str(redata))
+            print(f'file :{name} already exists !. repeated data = {redata}')
             continue
         else:
             redata = 0
@@ -46,11 +46,11 @@ def downloadAllDayExcelsFromIranbourse(OutDir='DailyExcelsFromIranBourse'):
         if r.status_code == 200:
             nodata = 0
             # open method to open a file on your system and write the contents
-            with open(OutDir + '/' + name, "wb") as code:
+            with open(f'{OutDir}/{name}', "wb") as code:
                 code.write(r.content)
         else:
             nodata += 1
-            print('Cannot get file : ' + name + ' !. no data = ' + str(nodata))
+            print(f'Cannot get file : {name} !. no data = {nodata}')
 
 
 # download namad data. the name of namad will be extracted from @param Inputfile
@@ -94,24 +94,24 @@ def downloadAllNamadExcelsFromIranbourse(OutputDir='NamadsExcelsFromIranBourse')
         filename = 'SymbolTrade_' + namad['title'] + '_' + namad['id'] + '_.xls'
 
         # check if the file existed or not
-        if os.path.exists(OutputDir + '/' + filename):
-            print('file : `' + filename + '` already exists !. ')
+        if os.path.exists(f'{OutputDir}/{filename}'):
+            print(f'file : `{filename}` already exists !. ')
             continue
 
         # go for next file to download
-        url = bourseSite + 'SymbolTrade_' + namad['id'] + '.xls'
+        url = f'{bourseSite}SymbolTrade_' + namad['id'] + '.xls'
         r = requests.get(url, verify=False)
 
         # check if the file downloaded correctly
         if r.status_code == 200:
             # open method to open a file on your system and write the contents
-            with open(OutputDir + '/' + filename, "wb") as code:
+            with open(f'{OutputDir}/{filename}', "wb") as code:
                 code.write(r.content)
         else:
-            print('Cannot get file : ' + filename + ' !. ')
+            print(f'Cannot get file : {filename} !. ')
 
         fn += 1
-        print(str(int(fn / len(Namads) * 100.)) + '% > ' + namad['title'])
+        print(f'{int(fn / len(Namads) * 100.0)}% > ' + namad['title'])
 
 
 def downloadOverallDataExcelFromIranbourse(OutputDir='OverallDataExcelFromIranBourse'):
@@ -121,23 +121,23 @@ def downloadOverallDataExcelFromIranbourse(OutputDir='OverallDataExcelFromIranBo
     SummeryUrl, filename = 'http://tse.ir/archive/Trade/Cash/TradeSummary/', 'TradeSummary.xls'
     r = requests.get(SummeryUrl + filename, verify=False)
     if r.status_code == 200:
-        with open(OutputDir + '/' + filename, "wb") as code:
+        with open(f'{OutputDir}/{filename}', "wb") as code:
             code.write(r.content)
     else:
-        print('Cannot get file : ' + filename + ' !. ')
+        print(f'Cannot get file : {filename} !. ')
 
     WholeIndexUrl, filename = 'http://tse.ir/archive/Indices/Main/', 'Indices_IRX6XTPI0006.xls'
     r = requests.get(WholeIndexUrl + filename, verify=False)
     if r.status_code == 200:
-        with open(OutputDir + '/' + filename, "wb") as code:
+        with open(f'{OutputDir}/{filename}', "wb") as code:
             code.write(r.content)
     else:
-        print('Cannot get file : ' + filename + ' !. ')
+        print(f'Cannot get file : {filename} !. ')
 
     WholeIndexSameWeightUrl, filename = 'http://tse.ir/archive/Indices/Main/', 'Indices_IRX6XTPI0026.xls'
     r = requests.get(WholeIndexSameWeightUrl + filename, verify=False)
     if r.status_code == 200:
-        with open(OutputDir + '/' + filename, "wb") as code:
+        with open(f'{OutputDir}/{filename}', "wb") as code:
             code.write(r.content)
     else:
-        print('Cannot get file : ' + filename + ' !. ')
+        print(f'Cannot get file : {filename} !. ')

@@ -26,13 +26,10 @@ GIdxBource = Grows Of Index Of Bource
 
 
 def extractCombinations(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, OutputDir=""):
-    # load data
-    f = open(InputFile, "rb")
-    Data = pickle.load(f)
-    f.close()
-
+    with open(InputFile, "rb") as f:
+        Data = pickle.load(f)
     adsize = len(Data)
-    print('start writing scores for ' + str(adsize) + ' namad')
+    print(f'start writing scores for {adsize} namad')
 
     PosibilitiesResult = {}
     nidx = 0
@@ -53,7 +50,7 @@ def extractCombinations(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, Outpu
 
         TrendInMonths, GBDoWtrend, TrendInSeasons, GBYtrend = getTrendGroupBySomethingOverAllEntries(NamadData)
 
-        for buy in range(0, len(ClosePrice) - maxDays):
+        for buy in range(len(ClosePrice) - maxDays):
             if math.isnan(ClosePrice[buy]):
                 continue
             buydate = Dates[buy]
@@ -86,14 +83,13 @@ def extractCombinations(InputFile="AllNamadsByNamads.pkl", MinDataLen=100, Outpu
                 })
 
         nidx += 1
-        print(str(int(nidx / adsize * 100)) + '% done > ' + Namad)
+        print(f'{int(nidx / adsize * 100)}% done > {Namad}')
 
     # save results
     if not os.path.exists(OutputDir):
         os.makedirs(OutputDir)
-    f = open(OutputDir + "/NamadEnumeratedData.pkl", "wb")
-    pickle.dump(ProfitsOnLengthsWithOtherData, f)
-    f.close()
+    with open(f"{OutputDir}/NamadEnumeratedData.pkl", "wb") as f:
+        pickle.dump(ProfitsOnLengthsWithOtherData, f)
 
 
 def getTrendGroupBySomethingOverAllEntries(NamadData):

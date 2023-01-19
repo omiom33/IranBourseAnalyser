@@ -107,7 +107,6 @@ def computeDistribution4Discrete(v):
             d[e] = 0
         d[e] += 1
     s = float(sum(d.values()))
-    for t in d:
-        d[t] /= s
-    od = collections.OrderedDict(sorted(d.items()))
-    return od
+    for value in d.values():
+        value /= s
+    return collections.OrderedDict(sorted(d.items()))
